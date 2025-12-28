@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../node_modules/@prisma/client-app"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_SHARD_0") // This is a placeholder, will be overridden at runtime
+}
+
+model Account {
+  id           Int      @id @default(autoincrement())
+  name         String
+  type         String   @default("asset")
+  userId       Int      // Foreign key to User in Auth DB (logical link only)
+  
+  parentId     Int?
+  parent       Account?  @relation("AccountHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children     Account[] @relation("AccountHierarchy")
+  
+  order        Int       @default(0)
+
+  transactions Transaction[] @relation("TransactionSource")
+  transfersIn  Transaction[] @relation("TransactionDestination")
+
+  @@unique([name, userId])
+}
+
+model Category {
+  id           Int           @id @default(autoincrement())
+  name         String
+  type         String
+  userId       Int      // Foreign key to User in Auth DB
+  
+  parentId     Int?
+  parent       Category?     @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children     Category[]    @relation("CategoryHierarchy")
+  
+  order        Int           @default(0)
+
+  transactions Transaction[]
+
+  @@unique([name, type, userId])
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  description String
+  amount      Int
+  date        DateTime
+  type        String 
+  
+  accountId   Int
+  account     Account  @relation("TransactionSource", fields: [accountId], references: [id], onDelete: Cascade)
+  
+  toAccountId Int?
+  toAccount   Account? @relation("TransactionDestination", fields: [toAccountId], references: [id], onDelete: Cascade)
+
+  categoryId  Int?     
+  category    Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+}

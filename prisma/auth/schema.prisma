@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../node_modules/@prisma/client-auth"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_AUTH")
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  name          String
+  password      String 
+  emailVerified DateTime?
+  shardId       Int       @default(0) // 0, 1, 2
+}
+
+model VerificationToken {
+  id         Int      @id @default(autoincrement())
+  email      String
+  token      String   @unique
+  code       String
+  expires    DateTime
+
+  @@unique([email, token])
+  @@unique([email, code])
+}

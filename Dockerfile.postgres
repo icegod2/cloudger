@@ -1,0 +1,15 @@
+# Use the official PostgreSQL image as a base
+FROM postgres:latest
+
+# Set environment variables for PostgreSQL
+# These are used to set up the initial database, user, and password
+# during the first run of the container.
+ENV POSTGRES_DB=accounting_dev
+ENV POSTGRES_USER=dev_user
+ENV POSTGRES_PASSWORD=dev_pass
+
+# Expose the default PostgreSQL port
+EXPOSE 5432
+
+# The official PostgreSQL image automatically starts the PostgreSQL server
+# when the container starts, so no CMD is needed here.

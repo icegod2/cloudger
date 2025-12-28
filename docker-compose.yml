@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Global Auth Database
+  db-auth:
+    image: postgres:15-alpine
+    container_name: vibe-db-auth
+    environment:
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_pass
+      POSTGRES_DB: vibe_auth
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_auth_data:/var/lib/postgresql/data
+    restart: always
+
+  # Shard 0
+  db-shard-0:
+    image: postgres:15-alpine
+    container_name: vibe-db-shard-0
+    environment:
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_pass
+      POSTGRES_DB: vibe_shard_0
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_shard_0_data:/var/lib/postgresql/data
+    restart: always
+
+  # Shard 1
+  db-shard-1:
+    image: postgres:15-alpine
+    container_name: vibe-db-shard-1
+    environment:
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_pass
+      POSTGRES_DB: vibe_shard_1
+    ports:
+      - "5434:5432"
+    volumes:
+      - db_shard_1_data:/var/lib/postgresql/data
+    restart: always
+
+  # Shard 2
+  db-shard-2:
+    image: postgres:15-alpine
+    container_name: vibe-db-shard-2
+    environment:
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_pass
+      POSTGRES_DB: vibe_shard_2
+    ports:
+      - "5435:5432"
+    volumes:
+      - db_shard_2_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  db_auth_data:
+  db_shard_0_data:
+  db_shard_1_data:
+  db_shard_2_data:
