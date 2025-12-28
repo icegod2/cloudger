@@ -4,7 +4,7 @@ import { authConfig } from './auth.config';
 import { z } from 'zod';
 import { prismaAuth } from '@/lib/db';
 import bcrypt from 'bcryptjs';
-import type { User } from '@prisma/client';
+import type { User } from '@prisma/client-auth';
 
 async function getUser(email: string): Promise<User | null> {
   try {
@@ -57,9 +57,11 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      if (token) {
-        session.user.id = Number(token.id);
-        session.user.shardId = Number(token.shardId);
+      if (token && session.user) {
+        // Use type assertion to bypass strict type checking for the custom id field
+        // This is necessary because NextAuth's default type for id is string
+        (session.user as any).id = Number(token.id);
+        (session.user as any).shardId = Number(token.shardId);
       }
       return session;
     },

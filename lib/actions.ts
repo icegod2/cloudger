@@ -40,7 +40,7 @@ export async function authenticate(
   }
 }
 
-export async function register(prevState: string | undefined, formData: FormData) {
+export async function register(prevState: any, formData: FormData) {
     const validatedFields = CreateUser.safeParse(Object.fromEntries(formData));
 
     if (!validatedFields.success) {

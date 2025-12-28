@@ -27,6 +27,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 interface Account {
   id: number;
   name: string;
+  type: string;
   parentId: number | null;
   depth?: number;
 }

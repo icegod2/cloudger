@@ -87,7 +87,7 @@ export function CreateAccountForm({
 
       <div className="grid gap-2">
         <Label htmlFor="type">Account Type</Label>
-        <Select value={type} onValueChange={(val) => { setType(val); setParentId('none'); }}>
+        <Select value={type} onValueChange={(val) => { setType(val as 'asset' | 'liability'); setParentId('none'); }}>
           <SelectTrigger className="rounded-xl">
             <SelectValue placeholder="Select type" />
           </SelectTrigger>
