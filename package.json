@@ -4,13 +4,19 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
+    "dev:https": "next dev --webpack --experimental-https",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "studio:auth": "npx prisma studio --schema prisma/auth/schema.prisma",
     "studio:shard0": "npx prisma studio --schema prisma/app/schema.prisma",
     "studio:shard1": "set -a && . ./.env && set +a && DATABASE_URL_SHARD_0=$DATABASE_URL_SHARD_1 npx prisma studio --schema prisma/app/schema.prisma",
-    "studio:shard2": "set -a && . ./.env && set +a && DATABASE_URL_SHARD_0=$DATABASE_URL_SHARD_2 npx prisma studio --schema prisma/app/schema.prisma"
+    "studio:shard2": "set -a && . ./.env && set +a && DATABASE_URL_SHARD_0=$DATABASE_URL_SHARD_2 npx prisma studio --schema prisma/app/schema.prisma",
+    "migrate:auth": "npx prisma migrate deploy --schema prisma/auth/schema.prisma",
+    "migrate:shard0": "npx prisma migrate deploy --schema prisma/app/schema.prisma",
+    "migrate:shard1": "set -a && . ./.env && set +a && DATABASE_URL_SHARD_0=$DATABASE_URL_SHARD_1 npx prisma migrate deploy --schema prisma/app/schema.prisma",
+    "migrate:shard2": "set -a && . ./.env && set +a && DATABASE_URL_SHARD_0=$DATABASE_URL_SHARD_2 npx prisma migrate deploy --schema prisma/app/schema.prisma",
+    "migrate:all": "npm run migrate:auth && npm run migrate:shard0 && npm run migrate:shard1 && npm run migrate:shard2"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

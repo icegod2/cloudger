@@ -21,6 +21,7 @@
 /build
 
 # misc
+/memory-bank
 .DS_Store
 *.pem
 *.sql
@@ -44,3 +45,5 @@ next-env.d.ts
 
 /lib/generated/prisma
 .env
+
+certificates
