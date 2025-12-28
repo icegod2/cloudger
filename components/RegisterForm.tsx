@@ -35,7 +35,6 @@ export default function RegisterForm() {
           }
       } catch (error) {
           console.error(error);
-          setVerifyError("An error occurred during verification.");
       } finally {
           setIsVerifying(false);
       }

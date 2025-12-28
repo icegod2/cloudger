@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { newVerification } from '@/lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,22 +11,34 @@ import { Button } from '@/components/ui/button';
 export const NewVerificationForm = () => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
+  const submittedRef = useRef(false); // Ref to track submission status
 
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
   const onSubmit = useCallback(() => {
-    if (success || error) return;
+    if (success || error || submittedRef.current) return; // Check ref
 
     if (!token) {
       setError('Missing token!');
       return;
     }
 
+    submittedRef.current = true; // Mark as submitted
+
     newVerification(token)
       .then((data) => {
-        setSuccess(data.success);
-        setError(data.error);
+        if (data.success) {
+            setSuccess(data.success);
+        } else {
+            // If token is missing, it might be a double-click race condition.
+            // We can't be sure, but "Invalid or Expired" covers both.
+            if (data.error === "Token does not exist!") {
+                 setError("Link invalid or already used.");
+            } else {
+                 setError(data.error);
+            }
+        }
       })
       .catch(() => {
         setError('Something went wrong!');

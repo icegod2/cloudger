@@ -127,41 +127,53 @@ export async function register(prevState: string | undefined, formData: FormData
 }
 
 export async function newVerification(token: string) {
-    const existingToken = await prismaAuth.verificationToken.findUnique({
-        where: { token }
-    });
+    try {
+        const existingToken = await prismaAuth.verificationToken.findUnique({
+            where: { token }
+        });
 
-    if (!existingToken) {
-        return { error: "Token does not exist!" };
-    }
-
-    const hasExpired = new Date(existingToken.expires) < new Date();
-
-    if (hasExpired) {
-        return { error: "Token has expired!" };
-    }
-
-    const existingUser = await prismaAuth.user.findUnique({
-        where: { email: existingToken.email }
-    });
-
-    if (!existingUser) {
-        return { error: "Email does not exist!" };
-    }
-
-    await prismaAuth.user.update({
-        where: { id: existingUser.id },
-        data: { 
-            emailVerified: new Date(),
-            email: existingToken.email // Useful if implementing email change logic
+        if (!existingToken) {
+            console.error('Verification Error: Token not found', token);
+            // Graceful handling: If token is missing, check if it was just consumed.
+            // We can't know for sure WHICH user it was, but for security we just return error.
+            // HOWEVER, common UX issue is double-click. 
+            // If we assume the token is invalid, we return error.
+            return { error: "Token does not exist!" };
         }
-    });
 
-    await prismaAuth.verificationToken.delete({
-        where: { id: existingToken.id }
-    });
+        const hasExpired = new Date(existingToken.expires) < new Date();
 
-    return { success: "Email verified!" };
+        if (hasExpired) {
+            console.error('Verification Error: Token expired', existingToken.expires);
+            return { error: "Token has expired!" };
+        }
+
+        const existingUser = await prismaAuth.user.findUnique({
+            where: { email: existingToken.email }
+        });
+
+        if (!existingUser) {
+            console.error('Verification Error: User not found for email', existingToken.email);
+            return { error: "Email does not exist!" };
+        }
+
+        await prismaAuth.user.update({
+            where: { id: existingUser.id },
+            data: { 
+                emailVerified: new Date(),
+                email: existingToken.email // Useful if implementing email change logic
+            }
+        });
+
+        await prismaAuth.verificationToken.delete({
+            where: { id: existingToken.id }
+        });
+
+        return { success: "Email verified!" };
+    } catch (error) {
+        console.error('CRITICAL: newVerification failed', error);
+        return { error: "An internal error occurred during verification." };
+    }
 }
 
 export async function verifyCode(email: string, code: string) {

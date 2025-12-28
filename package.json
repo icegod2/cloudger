@@ -16,7 +16,13 @@
     "migrate:shard0": "npx prisma migrate deploy --schema prisma/app/schema.prisma",
     "migrate:shard1": "set -a && . ./.env && set +a && DATABASE_URL_SHARD_0=$DATABASE_URL_SHARD_1 npx prisma migrate deploy --schema prisma/app/schema.prisma",
     "migrate:shard2": "set -a && . ./.env && set +a && DATABASE_URL_SHARD_0=$DATABASE_URL_SHARD_2 npx prisma migrate deploy --schema prisma/app/schema.prisma",
-    "migrate:all": "npm run migrate:auth && npm run migrate:shard0 && npm run migrate:shard1 && npm run migrate:shard2"
+    "migrate:all": "npm run migrate:auth && npm run migrate:shard0 && npm run migrate:shard1 && npm run migrate:shard2",
+    "postinstall": "prisma generate --schema prisma/auth/schema.prisma && prisma generate --schema prisma/app/schema.prisma",
+    "push:auth": "npx prisma db push --schema prisma/auth/schema.prisma",
+    "push:shard0": "npx prisma db push --schema prisma/app/schema.prisma",
+    "push:shard1": "set -a && . ./.env && set +a && DATABASE_URL_SHARD_0=$DATABASE_URL_SHARD_1 npx prisma db push --schema prisma/app/schema.prisma",
+    "push:shard2": "set -a && . ./.env && set +a && DATABASE_URL_SHARD_0=$DATABASE_URL_SHARD_2 npx prisma db push --schema prisma/app/schema.prisma",
+    "push:all": "npm run push:auth && npm run push:shard0 && npm run push:shard1 && npm run push:shard2"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
