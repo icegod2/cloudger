@@ -161,8 +161,13 @@ export async function register(prevState: any, formData: FormData) {
             }
         }
 
+        // Check if it's a Prisma unique constraint error (code P2002)
+        if ((error as any).code === 'P2002') {
+             return { message: 'This email is already registered.' };
+        }
+
         return {
-            message: 'Database Error: Failed to Create User. Email might already exist.',
+            message: 'Database Error: Failed to Create User. Please try again.',
         };
     }
 }
