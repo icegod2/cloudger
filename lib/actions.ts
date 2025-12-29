@@ -53,6 +53,47 @@ export async function register(prevState: any, formData: FormData) {
     const { email, password, name } = validatedFields.data;
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Check if user already exists
+    const existingUser = await prismaAuth.user.findUnique({
+        where: { email }
+    });
+
+    if (existingUser) {
+        // Case 1: User exists and is verified -> Error
+        if (existingUser.emailVerified) {
+             return {
+                message: 'User already exists!',
+            };
+        }
+
+        // Case 2: User exists but NOT verified -> Update and Resend
+        try {
+            // Update user with new details (in case they changed password/name)
+            await prismaAuth.user.update({
+                where: { id: existingUser.id },
+                data: {
+                    password: hashedPassword,
+                    name: name,
+                }
+            });
+
+            // Note: We don't need to re-create App DB data (Accounts/Categories) 
+            // because they should have been created on the first attempt.
+            // Even if the first attempt partially failed, handling that consistency is complex.
+            // For now, we assume App DB data exists or will be lazy-created later if missing.
+
+            // Send Verification Token
+            const verificationToken = await generateVerificationToken(email);
+            await sendVerificationEmail(verificationToken.email, verificationToken.token, verificationToken.code);
+
+            return { success: true, message: "Confirmation email resent!" };
+        } catch (error) {
+             console.error('Registration update error:', error);
+             return { message: 'Database Error: Failed to update user.' };
+        }
+    }
+
+    // Case 3: New User -> Create everything
     // 1. Assign Shard (Simple Round-Robin or Random)
     const shardId = Math.floor(Math.random() * 3);
     let userId: number | null = null;
