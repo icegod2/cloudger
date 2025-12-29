@@ -293,3 +293,27 @@ export async function loginWithCredentials(email: string, password: string) {
 export async function signOutAction() {
   await signOut();
 }
+
+export async function resendVerification(email: string) {
+    try {
+        const user = await prismaAuth.user.findUnique({
+            where: { email }
+        });
+
+        if (!user) {
+            return { error: "User not found." };
+        }
+
+        if (user.emailVerified) {
+             return { error: "Email is already verified." };
+        }
+
+        const verificationToken = await generateVerificationToken(email);
+        await sendVerificationEmail(verificationToken.email, verificationToken.token, verificationToken.code);
+
+        return { success: "Verification code resent!" };
+    } catch (error) {
+        console.error("Resend verification error:", error);
+        return { error: "Failed to resend code." };
+    }
+}

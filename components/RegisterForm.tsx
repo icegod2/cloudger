@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState, useState, useEffect } from 'react';
-import { register, verifyCode, loginWithCredentials } from '@/lib/actions';
+import { register, verifyCode, loginWithCredentials, resendVerification } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,6 +20,39 @@ export default function RegisterForm() {
   const [verificationCode, setVerificationCode] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState<string | null>(null);
+
+  // Resend State
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [isResending, setIsResending] = useState(false);
+  const [resendMessage, setResendMessage] = useState("");
+
+  // Timer Logic
+  useEffect(() => {
+    if (state?.success && timeLeft > 0) {
+        const timerId = setTimeout(() => {
+            setTimeLeft(timeLeft - 1);
+        }, 1000);
+        return () => clearTimeout(timerId);
+    }
+  }, [state?.success, timeLeft]);
+
+  const handleResend = async () => {
+    setIsResending(true);
+    setResendMessage("");
+    try {
+        const result = await resendVerification(email);
+        if (result.success) {
+            setTimeLeft(60); // Reset timer
+            setResendMessage("Verification code sent!");
+        } else if (result.error) {
+            setResendMessage(result.error);
+        }
+    } catch (error) {
+        setResendMessage("Failed to resend.");
+    } finally {
+        setIsResending(false);
+    }
+  };
 
   const handleVerify = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -74,6 +107,19 @@ export default function RegisterForm() {
                       {isVerifying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Verify & Login
                   </Button>
+
+                  <div className="pt-2 text-center space-y-2">
+                    <Button 
+                        type="button" 
+                        variant="ghost" 
+                        onClick={handleResend} 
+                        disabled={timeLeft > 0 || isResending} 
+                        className="w-full text-zinc-500 dark:text-zinc-400"
+                    >
+                        {timeLeft > 0 ? `Resend code in ${timeLeft}s` : (isResending ? <Loader2 className="animate-spin h-4 w-4" /> : "Resend Code")}
+                    </Button>
+                    {resendMessage && <p className="text-xs text-zinc-500 animate-pulse">{resendMessage}</p>}
+                  </div>
               </form>
           </div>
       );
