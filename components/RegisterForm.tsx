@@ -13,6 +13,7 @@ export default function RegisterForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [state, dispatch, isPending] = useActionState(register, undefined);
 
   // Verification State
@@ -118,6 +119,20 @@ export default function RegisterForm() {
           className="rounded-xl"
         />
         {state?.errors?.password && <p className="text-sm text-red-500">{state.errors.password}</p>}
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <Input
+          id="confirmPassword"
+          type="password"
+          name="confirmPassword"
+          required
+          minLength={6}
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          className="rounded-xl"
+        />
+        {state?.errors?.confirmPassword && <p className="text-sm text-red-500">{state.errors.confirmPassword}</p>}
       </div>
       <div className="flex flex-col gap-4 mt-4">
         <Button type="submit" className="w-full rounded-full" aria-disabled={isPending}>

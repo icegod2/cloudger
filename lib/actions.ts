@@ -8,17 +8,29 @@ import { z } from 'zod';
 import { generateVerificationToken } from '@/lib/tokens';
 import { sendVerificationEmail } from '@/lib/mail';
 
-const FormSchema = z.object({
+const UserFields = {
   email: z.string().email({
     message: 'Please enter a valid email address.',
   }),
   password: z.string().min(6, {
     message: 'Password must be at least 6 characters.',
   }),
+  confirmPassword: z.string().min(6, {
+      message: 'Password must be at least 6 characters.',
+  }),
+};
+
+const FormSchema = z.object(UserFields).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
 });
 
-const CreateUser = FormSchema.extend({
+const CreateUser = z.object({
+  ...UserFields,
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
 });
 
 export async function authenticate(
