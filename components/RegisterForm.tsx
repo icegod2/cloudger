@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 
 export default function RegisterForm() {
   const router = useRouter();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -134,6 +135,8 @@ export default function RegisterForm() {
           name="name"
           placeholder="John Doe"
           required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
           className="rounded-xl"
         />
         {state?.errors?.name && <p className="text-sm text-red-500">{state.errors.name}</p>}
