@@ -1,6 +1,8 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY 
+  ? new Resend(process.env.RESEND_API_KEY) 
+  : null;
 
 const domain = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000';
 
@@ -10,6 +12,10 @@ export const sendVerificationEmail = async (email: string, token: string, code: 
   // Use Resend to send real emails
   // Note: On the free tier without a custom domain, you can only send to the email address you registered with on Resend.
   try {
+      if (!resend) {
+        throw new Error("Resend API Key not found");
+      }
+
       const { data, error } = await resend.emails.send({
         from: 'Cloudger <onboarding@resend.dev>', // If you verified a domain, change this (e.g., 'noreply@cloudger.com')
         to: email,
