@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { LayoutDashboard, Wallet, CreditCard, PieChart, Menu, ChevronRight, ChevronDown, TrendingUp, TrendingDown, Landmark, ArrowRightLeft, LogOut } from 'lucide-react';
+import { LayoutDashboard, Wallet, CreditCard, PieChart, Menu, ChevronRight, ChevronDown, TrendingUp, TrendingDown, Landmark, ArrowRightLeft, LogOut, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -19,6 +19,7 @@ const navItems = [
   { icon: Wallet, label: 'Accounts', href: '/accounts' },
   { icon: CreditCard, label: 'Transactions', href: '/transactions' },
   { icon: PieChart, label: 'Reports', href: '/reports' },
+  { icon: Settings, label: 'Settings', href: '/settings' },
 ];
 
 interface SidebarProps {
